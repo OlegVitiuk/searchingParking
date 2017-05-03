@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<div id="map" style="width: 1345px; height: 660px"></div>
+
+<script type="text/javascript">
+    ymaps.ready(init);
+    var myMap, parking;
+
+    function init() {
+        myMap = new ymaps.Map("map", {
+            center: [50.4501, 30.5234],
+            zoom: 12
+        });
+        parking = new ymaps.Placemark([50.44694481, 30.45654161],
+            {
+                hintContent: '18 корпус',
+                balloonContent: 'ФИВТ'
+            }
+        );
+
+        myParking = new ymaps.GeoObjectCollection({}, {
+            preset: 'island#blueIcon',
+        });
+
+
+        {% for i in data %}
+            {{ cord = i.latitude,  i.longtitude}}
+
+            myCollection.add(new ymaps.Placemark(cord))
+        {% endfor %}
+        myMap.geoObjects.add(myCollection);
+    }
+</script>
+
+
+</body>
+</html>

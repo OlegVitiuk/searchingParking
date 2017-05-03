@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Parking Search</title>
+    <script src="https://api-maps.yandex.ru/2.1/?lang=ru_RU" type="text/javascript"></script>
+</head>
+<body>
+
+<div id="map" style="width: 1345px; height: 660px"></div>
+
+<script type="text/javascript">
+    ymaps.ready(init);
+    var myMap, parking;
+
+    function init() {
+        <!-- Class for ballon menu-->
+        var BalloonClass = ymaps.templateLayoutFactory.createClass(
+            '<h3></h3>' +
+            '<p>Описание: </p>' +
+            '<p>Население:</p>' +
+            '<p>Метрополитен: </p>'
+        );
+
+        var data = {
+                balloonContent: BalloonClass
+            },
+
+            <!-- Initialize map-->
+            myMap = new ymaps.Map("map", {
+                center: [50.4501, 30.5234],
+                zoom: 12
+            });
+        <!--Add one parking-->
+
+        Park = new ymaps.GeoObjectCollection({}, {
+            preset: 'island#redIcon'
+        });
+        var coord = []
+        {% for i in data%}
+            var temp = []
+            temp.push({{ i.latitude }}, {{ i.longitude }})
+            coord.push(temp)
+        {% endfor %}
+        for (var i = 0; i < coord.length; i++) {
+            Park.add(new ymaps.Placemark(coord[i], data));
+        }
+
+        myMap.controls.add('routeEditor');
+        myMap.geoObjects.add(Park);
+
+
+    }
+</script>
+
+</body>
+</html>
