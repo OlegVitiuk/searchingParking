@@ -3,7 +3,25 @@
 <head>
     <meta charset="UTF-8">
     <title>Parking Search</title>
+    <script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css">
+
+    <!-- Optional theme -->
+    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap-theme.min.css">
+
+    <!-- Latest compiled and minified JavaScript -->
+    <script src="//netdna.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
+
     <script src="https://api-maps.yandex.ru/2.1/?lang=ru_RU" type="text/javascript"></script>
+    <style>
+        .my-button {
+            background-color: white;
+            width: 150px;
+            height: 600px;
+            display: none;
+        }
+    </style>
 </head>
 <body>
 
@@ -16,21 +34,23 @@
     function init() {
         <!-- Class for ballon menu-->
         var BalloonClass = ymaps.templateLayoutFactory.createClass(
-            '<h3></h3>' +
-            '<p>Описание: </p>' +
-            '<p>Население:</p>' +
-            '<p>Метрополитен: </p>'
+//            '<h3></h3>' +
+//            '<p>Описание: </p>' +
+//            '<p>Население:</p>' +
+//            '<p>Метрополитен: </p>'
+
+//                '<img src="http://img-fotki.yandex.ru/get/6114/82599242.2d6/0_88b97_ec425cf5_M" />'
         );
 
         var data = {
-                balloonContent: BalloonClass
-            },
+                    balloonContent: BalloonClass
+                },
 
-            <!-- Initialize map-->
-            myMap = new ymaps.Map("map", {
-                center: [50.4501, 30.5234],
-                zoom: 12
-            });
+        <!-- Initialize map-->
+                myMap = new ymaps.Map("map", {
+                    center: [50.4501, 30.5234],
+                    zoom: 12
+                });
         <!--Add one parking-->
 
         Park = new ymaps.GeoObjectCollection({}, {
@@ -38,19 +58,53 @@
         });
         var coord = []
         {% for i in data%}
-            var temp = []
-            temp.push({{ i.latitude }}, {{ i.longitude }})
-            coord.push(temp)
+        var temp = []
+        temp.push({{ i.latitude }}, {{ i.longitude }})
+        coord.push(temp)
         {% endfor %}
+//        for (var i = 0; i < coord.length; i++) {
+//            var placeMark = new ymaps.Placemark(coord[i], data);
+//            Park.add(placeMark);
+//        }
         for (var i = 0; i < coord.length; i++) {
-            Park.add(new ymaps.Placemark(coord[i], data));
+            Park.add(new ymaps.Placemark(coord[i], {
+//                name: 'Оперный театр',
+//                address: 'ул. Белинского, 59',
+//                websayt: 'www.operann.ru/'
+                balloonContent: 'asgasgas'
+
+            },{
+                preset: "islands#redStretchyIcon",
+                balloonCloseButton: true,
+                hideIconOnBalloonOpen: false
+            }));
         }
 
-        myMap.controls.add('routeEditor');
+//// Создаем шаблон для отображения контента балуна
+//        var myBalloonLayout = ymaps.templateLayoutFactory.createClass(
+//                '<h3>$[properties.name]</h3>' +
+//                '<p><strong>Адрес:</strong> $[properties.address]</p>' +
+//                '<p><strong>Веб-сайт:</strong> <a rel="nofollow" href="http://$[properties.websayt]" target="_blank">перейти</a></p>'
+//        );
+//
+//        // Помещаем созданный шаблон в хранилище шаблонов. Теперь наш шаблон доступен по ключу 'my#theaterlayout'.
+//        ymaps.layout.storage.add('my#theaterlayout', myBalloonLayout);
+//
+//        // Задаем наш шаблон для балунов геобъектов коллекции.
+//        Park.options.set({
+//            balloonContentBodyLayout:'my#theaterlayout',
+//            // Максимальная ширина балуна в пикселах
+//            balloonMaxWidth: 300
+//        });
+
+
+
+        myMap.controls
+                .add('zoomControl', { position: { left: 160, top: 50 } });
+//                .add(button, { position: { left: 0, top: 0 } });
         myMap.geoObjects.add(Park);
-
-
     }
+
 </script>
 
 </body>
