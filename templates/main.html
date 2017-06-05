@@ -53,42 +53,39 @@
         Park = new ymaps.GeoObjectCollection({}, {
             preset: 'island#redIcon'
         });
-        var coord = []
-        {% for i in data%}
-        var temp = []
-        temp.push({{ i.latitude }}, {{ i.longitude }})
-        coord.push(temp)
-        {% endfor %}
 
-        for (var i = 0; i < coord.length; i++) {
-            Park.add(new ymaps.Placemark(coord[i], {
-                balloonContentHeader: "Назва парковки",
+        //get parkings from db
+         {% for i in data %}
+        Park.add(new ymaps.Placemark([{{i.latitude}}, {{i.longitude}}],
+        {
+            balloonContentHeader: "Назва парковки",
                 balloonContentBody:
-                '<div class="container">' +
+                    '<div class="container">' +
                     '<div class="price">' +
-                        '<span>Цена</span>' +
-                        '<span>20грн</span>' +
+                    '<span>Цена</span>' +
+                    '<span>{{i.title}}</span>' +
                     '</div>' +
                     '<div class="telephone">' +
-                        '<span>Телефон</span>' +
-                        '<span>0956266849</span>' +
+                    '<span>Телефон</span>' +
+                    '<span></span>' +
                     '</div>' +
                     '<div class="places">' +
-                        '<span>Місць</span>' +
-                        '<span>20</span>' +
+                    '<span>Місць</span>' +
+                    '<span>{{i.capacity}}</span>' +
                     '</div>' +
                     '<div class="email">' +
-                        '<span>Пошта</span>' +
-                        '<span>Example@gmail.com</span>' +
+                    '<span>Пошта</span>' +
+                    '<span>Example@gmail.com</span>' +
                     '</div>' +
-                '</div>'
-
-            },{
+                    '</div>'
+        }
+    ,
+        {
                 preset: "islands#redStretchyIcon",
                 balloonCloseButton: true,
-                hideIconOnBalloonOpen: false
-            }));
-        }
+                hideIconOnBalloonOpen: false}
+    ));
+        {% endfor %}
 
 
         //get browser myLocation
