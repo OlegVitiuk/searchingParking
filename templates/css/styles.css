@@ -1,7 +1,5 @@
-.container{
-    display: flex;
-    box-sizing: border-box;
-    justify-content: space-between;
-    align-items: center;
-    width: 100%;
+html, body, #map{
+    height: 100%;
+    margin: 0px;
+    padding: 0px
 }
