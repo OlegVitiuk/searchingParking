@@ -34,13 +34,13 @@
 //                '<img src="http://img-fotki.yandex.ru/get/6114/82599242.2d6/0_88b97_ec425cf5_M" />'
         );
 
-        var data = {
-                    balloonContent: BalloonClass
-                },
+       var geolocation = ymaps.geolocation,
                 myMap = new ymaps.Map("map", {
                     center: [50.4501, 30.5234],
                     zoom: 12
-                });
+                },{
+            searchControlProvider: 'yandex#search'
+        });
 
         Park = new ymaps.GeoObjectCollection({}, {
             preset: 'island#redIcon'
@@ -85,9 +85,22 @@
                 hideIconOnBalloonOpen: false
             }));
         }
+        //get browser myLocation
+        geolocation.get({
+            provider: 'browser',
+            mapStateAutoApply: true
+        }).then(function (result) {
+        // Синим цветом пометим положение, полученное через браузер.
+
+            result.geoObjects.options.set('preset', 'islands#blueCircleIcon');
+            myMap.geoObjects.add(result.geoObjects);
+        });
+
         myMap.controls
                 .add('zoomControl', { position: { left: 160, top: 50 } });
         myMap.geoObjects.add(Park);
+
+
     }
 
 </script>
