@@ -25,23 +25,31 @@
     var myMap, parking;
 
     function init() {
-        var BalloonClass = ymaps.templateLayoutFactory.createClass(
-//            '<h3></h3>' +
-//            '<p>Описание: </p>' +
-//            '<p>Население:</p>' +
-//            '<p>Метрополитен: </p>'
 
-//                '<img src="http://img-fotki.yandex.ru/get/6114/82599242.2d6/0_88b97_ec425cf5_M" />'
-        );
+        //open a map based on your location
+    ymaps.geolocation.get().then(function (res) {
+        var mapContainer = $('#map'),
+            bounds = res.geoObjects.get(0).properties.get('boundedBy'),
+            // Рассчитываем видимую область для текущей положения пользователя.
+            mapState = ymaps.util.bounds.getCenterAndZoom(
+                bounds,
+                [mapContainer.width(), mapContainer.height()]
+            );
+        createMap(mapState);
+    }, function (e) {
+        // Если местоположение невозможно получить, то просто создаем карту.
+        createMap({
+            center: [55.751574, 37.573856],
+            zoom: 2
+        });
+    });
 
-       var geolocation = ymaps.geolocation,
-                myMap = new ymaps.Map("map", {
-                    center: [50.4501, 30.5234],
-                    zoom: 12
-                },{
+    function createMap (state) {
+        myMap = new ymaps.Map('map', state,{
             searchControlProvider: 'yandex#search'
         });
-
+    }
+        
         Park = new ymaps.GeoObjectCollection({}, {
             preset: 'island#redIcon'
         });
@@ -52,10 +60,6 @@
         coord.push(temp)
         {% endfor %}
 
-//        for (var i = 0; i < coord.length; i++) {
-//            var placeMark = new ymaps.Placemark(coord[i], data);
-//            Park.add(placeMark);
-//        }
         for (var i = 0; i < coord.length; i++) {
             Park.add(new ymaps.Placemark(coord[i], {
                 balloonContentHeader: "Назва парковки",
@@ -85,21 +89,20 @@
                 hideIconOnBalloonOpen: false
             }));
         }
+
+
         //get browser myLocation
-        geolocation.get({
+        ymaps.geolocation.get({
             provider: 'browser',
             mapStateAutoApply: true
         }).then(function (result) {
         // Синим цветом пометим положение, полученное через браузер.
-
             result.geoObjects.options.set('preset', 'islands#blueCircleIcon');
-            myMap.geoObjects.add(result.geoObjects);
-        });
-
-        myMap.controls
+            myMap.controls
                 .add('zoomControl', { position: { left: 160, top: 50 } });
-        myMap.geoObjects.add(Park);
-
+            myMap.geoObjects.add(result.geoObjects); //add mylocation
+            myMap.geoObjects.add(Park); //add parkings
+        });
 
     }
 
