@@ -111,118 +111,142 @@
             var index;
 
       function initAutocomplete() {
-        var pyrmont = {lat: 50.447117, lng: 30.4462145};
-        directionsDisplay = new google.maps.DirectionsRenderer();
-        directionsService= new google.maps.DirectionsService();
-            map = new google.maps.Map(document.getElementById('map'), {
-          center: pyrmont,
-          zoom: 15,
-                mapTypeId: 'roadmap'
-        });
+          var pyrmont = {lat: 50.447117, lng: 30.4462145};
+          directionsDisplay = new google.maps.DirectionsRenderer();
+          directionsService = new google.maps.DirectionsService();
 
-        //input search
+          map = new google.maps.Map(document.getElementById('map'), {
+              center: pyrmont,
+              zoom: 15,
+              mapTypeId: 'roadmap'
+          });
+          var markersI = [];
+          //input search
           // Create the search box and link it to the UI element.
-        var input = document.getElementById('pac-input');
-        var searchBox = new google.maps.places.SearchBox(input);
-        map.controls[google.maps.ControlPosition.TOP_LEFT].push(input);
+          var input = document.getElementById('pac-input');
+          var searchBox = new google.maps.places.SearchBox(input);
+          map.controls[google.maps.ControlPosition.TOP_LEFT].push(input);
 
-        // Bias the SearchBox results towards current map's viewport.
-        map.addListener('bounds_changed', function() {
-          searchBox.setBounds(map.getBounds());
-        });
-
-        var markersI = [];
-        // Listen for the event fired when the user selects a prediction and retrieve
-        // more details for that place.
-        searchBox.addListener('places_changed', function() {
-          var places = searchBox.getPlaces();
-
-          if (places.length == 0) {
-            return;
-          }
-
-          // Clear out the old markers.
-          markersI.forEach(function(marker) {
-            marker.setMap(null);
+          // Bias the SearchBox results towards current map's viewport.
+          map.addListener('bounds_changed', function () {
+              searchBox.setBounds(map.getBounds());
           });
-          markersI = [];
 
-          // For each place, get the icon, name and location.
-          var bounds = new google.maps.LatLngBounds();
-          places.forEach(function(place) {
-            if (!place.geometry) {
-              console.log("Returned place contains no geometry");
-              return;
-            }
-            var icon = {
-              url: place.icon,
-              size: new google.maps.Size(71, 71),
-              origin: new google.maps.Point(0, 0),
-              anchor: new google.maps.Point(17, 34),
-              scaledSize: new google.maps.Size(25, 25)
-            };
+          // Listen for the event fired when the user selects a prediction and retrieve
+          // more details for that place.
+          searchBox.addListener('places_changed', function () {
+              var places = searchBox.getPlaces();
 
-            // Create a marker for each place.
-            markersI.push(new google.maps.Marker({
-              map: map,
-              icon: icon,
-              title: place.name,
-              position: place.geometry.location
-            }));
+              if (places.length == 0) {
+                  return;
+              }
 
-            if (place.geometry.viewport) {
-              // Only geocodes have viewport.
-              bounds.union(place.geometry.viewport);
-            } else {
-              bounds.extend(place.geometry.location);
-            }
+              // Clear out the old markers.
+              markersI.forEach(function (marker) {
+                  marker.setMap(null);
+              });
+              markersI = [];
+
+              // For each place, get the icon, name and location.
+              var bounds = new google.maps.LatLngBounds();
+              places.forEach(function (place) {
+                  if (!place.geometry) {
+                      console.log("Returned place contains no geometry");
+                      return;
+                  }
+                  var icon = {
+                      url: place.icon,
+                      size: new google.maps.Size(71, 71),
+                      origin: new google.maps.Point(0, 0),
+                      anchor: new google.maps.Point(17, 34),
+                      scaledSize: new google.maps.Size(25, 25)
+                  };
+                  var infoWindowContent = [place.name + '<button style="margin-left:20px" class="btn btn-danger" id="makeRoute">' + "Make route!" + '</button>'].join("");
+
+                  var info = new google.maps.InfoWindow({
+                      content: infoWindowContent
+                  });
+
+                  // Create a marker for each place.
+                  var marker = new google.maps.Marker({
+                      map: map,
+                      icon: icon,
+                      title: place.name,
+                      position: place.geometry.location,
+                      infoWindow: info
+                  });
+                  markersI.push(marker);
+
+
+                  //console.log(markersI);
+
+                  if (place.geometry.viewport) {
+                      // Only geocodes have viewport.
+                      bounds.union(place.geometry.viewport);
+                  } else {
+                      bounds.extend(place.geometry.location);
+                  }
+                  google.maps.event.addListener(marker, 'click', function (event) {
+              //console.log("dgdsg");
+              markersI.forEach(function (marker) {
+                  marker.infoWindow.close(map, marker)
+              });
+              google.maps.event.addListener(info, 'domready', function () {
+                  document.getElementById("makeRoute").addEventListener("click", function (e) {
+                      calcRoute();
+                  });
+              });
+              info.open(map, this);
+              end = this.position;
+              //calcRoute();
+              return marker;
           });
-          map.fitBounds(bounds);
-        });
+              });
+              map.fitBounds(bounds);
+          });
 
+          directionsDisplay.setMap(map);
 
-        directionsDisplay.setMap(map);
+          service = new google.maps.places.PlacesService(map);
+          service.nearbySearch({
+              location: pyrmont,
+              radius: 5000,
+              type: ['parking']
+          }, callback);
 
-        service = new google.maps.places.PlacesService(map);
-        service.nearbySearch({
-          location: pyrmont,
-          radius: 5000,
-          type: ['parking']
-        }, callback);
+          google.maps.event.addListener(map, 'rightclick', function (event) {
+              map.setCenter(event.latLng)
+              clearResults(markers);
 
-        google.maps.event.addListener(map, 'rightclick', function(event) {
-            map.setCenter(event.latLng)
-            clearResults(markers);
-
-            service.nearbySearch({
+              service.nearbySearch({
                   location: event.latLng,
                   radius: 5000,
                   type: ['parking']
-                }, callback);
-            });
-
-        //find my Location
-         if (navigator.geolocation) {
-           navigator.geolocation.getCurrentPosition(function(position) {
-            var pos = {
-              lat: position.coords.latitude,
-              lng: position.coords.longitude
-            };
-            start = pos;
-            var marker = new google.maps.Marker({
-                position: pos,
-                title: "Here I am!",
-                draggable:true,
-                animation: google.maps.Animation.BOUNCE
-             });
-            marker.setMap(map);
-          }, function() {
-            handleLocationError(true, infoWindow, map.getCenter());
+              }, callback);
           });
-        } else {
-          // Browser doesn't support Geolocation
-          handleLocationError(false, infoWindow, map.getCenter());
-        }
+
+          //find my Location
+          if (navigator.geolocation) {
+              navigator.geolocation.getCurrentPosition(function (position) {
+                  var pos = {
+                      lat: position.coords.latitude,
+                      lng: position.coords.longitude
+                  };
+                  start = pos;
+                  var marker = new google.maps.Marker({
+                      position: pos,
+                      title: "Here I am!",
+                      draggable: true,
+                      animation: google.maps.Animation.BOUNCE
+                  });
+                  marker.setMap(map);
+              }, function () {
+                  handleLocationError(true, infoWindow, map.getCenter());
+              });
+          } else {
+              // Browser doesn't support Geolocation
+              handleLocationError(false, infoWindow, map.getCenter());
+          }
       }
 
       function callback(results, status) {
