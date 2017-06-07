@@ -261,6 +261,24 @@
 
       function createMarker(place) {
 
+
+          function getadress(latLng){
+              var geocoder = new google.maps.Geocoder;
+
+              var adress =""; // (1) Sets address as empty.
+
+              geocoder.geocode( {'latLng': latLng}, // (2) Launches the geocoding request.
+                  function(results, status) { // (3) later, when the result gets back, populates the address.
+                      adress = results[0].formatted_address;
+                      nextStep(adress);
+                  });
+            }
+
+            function nextStep(address){ // (4) should log the address
+               console.log(address);
+            }
+
+
          var infoWindowContent = [place.name+ '<button style="margin-left:20px" class="btn btn-danger" id="makeRoute">'+"Make route!"+'</button>'].join("");
 
           var info = new google.maps.InfoWindow({
@@ -280,6 +298,7 @@
             markers.forEach(function (marker) {
                     marker.infoWindow.close(map, marker)
             });
+            getadress(this.position);
             google.maps.event.addListener(info, 'domready', function() {
                 document.getElementById("makeRoute").addEventListener("click", function(e) {
                     calcRoute();
