@@ -278,8 +278,7 @@
                console.log(address);
             }
 
-
-         var infoWindowContent = [place.name+ '<button style="margin-left:20px" class="btn btn-danger" id="makeRoute">'+"Make route!"+'</button>'].join("");
+         var infoWindowContent = ['<strong>'+place.name+'</strong>'+' '+ place.vicinity+'<button style="margin-left:20px" class="btn btn-danger" id="makeRoute">'+"Make route!"+'</button>'].join("");
 
           var info = new google.maps.InfoWindow({
                 content: infoWindowContent
