@@ -331,22 +331,32 @@
         }
         function loadParkingsFromDB() {
             {% for parking in data %}
-{#                console.log(parking)#}
-{#                var infowindow = new google.maps.InfoWindow();#}
-{#                var pos = {#}
-{#                     lat: {{ parking.latitude }},#}
-{#                     lng: {{ parking.longitude }}#}
-{#                };#}
-{#                var marker = new google.maps.Marker({#}
-{#                    position: pos#}
-{#                });#}
-{#                infowindow.setContent('' +#}
-{#                    '<div>' +#}
-{#                        '<strong>' + {{parking.title}} + '</strong><br>' +#}
-{#                        {{parking.capasity}}+#}
-{#                    ' </div>');#}
-{#                infowindow.open(map, this);#}
-{#                marker.setMap(map);#}
+                var infowindow = new google.maps.InfoWindow();
+                var pos = {
+                     lat: {{ parking.latitude }},
+                     lng: {{ parking.longitude }}
+                };
+                var marker = new google.maps.Marker({
+                    position: pos
+                });
+                infowindow.setContent('<div><strong>' + '{{ parking.title }}' + '</strong><br>' +
+                'Capasity: ' +{{ parking.capacity }}+'  Price: '+{{ parking.price }} +'<button style="margin-left:20px" class="btn btn-danger" id="makeRoute">' + "Make route!" + '</button>'+ '</div>');
+                marker.setMap(map);
+
+                 google.maps.event.addListener(marker, 'click', function (event) {
+              google.maps.event.addListener(infowindow, 'domready', function () {
+                  document.getElementById("makeRoute").addEventListener("click", function (e) {
+                      calcRoute();
+                  });
+              });
+              infowindow.open(map, this);
+              end = this.position;
+              //calcRoute();
+              return marker;
+          });
+
+
+                //infowindow.open(map, this);
             {% endfor %}
 }
 
